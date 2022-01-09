@@ -71,7 +71,7 @@ if (isset($_SERVER["HTTP_REFFERER"]) && $_SERVER["HTTP_REFFERER"] == "http://" .
 Always sanitize the user input. Again, "Never trust the user". We'll have an overview of some methods. In most cases you have to sanitize inputs for specifically tho.
 
 ##### Trimming Whitespaces
-`trim()` clears whitespaces from before and after the string. `[trim() on PHP Documentation](https://www.php.net/manual/en/function.trim.php)`
+`trim()` clears whitespaces from before and after the string. [`trim()` on PHP Documentation](https://www.php.net/manual/en/function.trim.php)
 ```php
 $a = "     Hello    World   !    ";
 $b = trim($temp);
@@ -79,7 +79,7 @@ $b = trim($temp);
 ```
 
 ##### Length Limiting
-Limit the maximum and minimum length of user inputs. You probably want to keep an eye on your database as well. Based on the context, either show an error, or trim it using `substr()` on limit exceed [and tell the user]. Don't set it too limited. like allow passwords 8-64, and names 3-50, and emails 10-128. `[substr() on PHP Documentation](https://www.php.net/manual/en/function.substr.php)`
+Limit the maximum and minimum length of user inputs. You probably want to keep an eye on your database as well. Based on the context, either show an error, or trim it using `substr()` on limit exceed [and tell the user]. Don't set it too limited. like allow passwords 8-64, and names 3-50, and emails 10-128. [`substr()` on PHP Documentation](https://www.php.net/manual/en/function.substr.php)
 ```php
 if (strlen($_POST["password"]) >= 8 && strlen($_POST["password"]) <= 64) {
     // Do the thing..
