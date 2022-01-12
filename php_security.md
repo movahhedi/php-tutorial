@@ -120,7 +120,7 @@ We usually use [`htmlspecialchars()`](https://www.php.net/manual/en/function.htm
 
 I [`htmlspecialchars()`](https://www.php.net/manual/en/function.htmlspecialchars.php) only when `echo`ing. I don't often use it for storing in the DB. for the DB, I just do the normal sanitizing required. (Think of it, a user uses a `<` in their password and you suddenly make it not work... das no good). Or at least do it on one side only, you probably don't want a literal `&lt;script&gt;` showing up on your site.
 
-For adding to the DB, [`filter_var()](https://www.php.net/manual/en/function.filter-var.php) with [`FILTER_SANITIZE_FULL_SPECIAL_CHARS`](https://www.php.net/manual/en/filter.filters.sanitize.php) can be used to sanitize as well.
+For adding to the DB, [`filter_var()`](https://www.php.net/manual/en/function.filter-var.php) with [`FILTER_SANITIZE_FULL_SPECIAL_CHARS`](https://www.php.net/manual/en/filter.filters.sanitize.php) can be used to sanitize as well.
 ```php
 <?php $a = "<script>alert('Your site is hacked, hahaha');</script>"; ?>
 
