@@ -22,34 +22,26 @@ if (isset($_POST["username"]) && isset($_POST["password"])) {
 Check for the input to not be empty if it shouldn't be empty (if the input is required).
 This has a quite few methods; [RegEx](https://www.w3schools.com/php/php_regex.asp), and some below. Between the ones below, I prefer the first one.
 ```php
-if ($_POST["username"] && $_POST["password"]) {
-    // Do the thing..
-}
+if ($_POST["username"] && $_POST["password"]) { }
 // OR
-if ($_POST["username"] != "" && $_POST["password"] != "") {
-    // Do the thing..
-}
+if ($_POST["username"] != "" && $_POST["password"] != "") { }
 // OR
-if ( ! empty($_POST["username"]) && ! empty($_POST["password"])) {
-    // Do the thing..
-}
-if ( ! strlen($_POST["username"]) && ! strlen($_POST["password"])) {
-    // Do the thing..
-}
+if ( ! empty($_POST["username"]) && ! empty($_POST["password"])) { }
+// OR
+if ( ! strlen($_POST["username"]) && ! strlen($_POST["password"])) { }
 ```
 
 
 ### NONCE, Only Once!
-Sending a NONCE (Number ONCE) along with the user input. NONCE is a hashed string to check if the input is valid. It's usually based on UNIX-timestamp so we can fact-check it and limit the usablility time. With this, we can be more sure that no non-direct requests are permited access.
+Sending a NONCE (Number ONCE) along with the user input. NONCE is a hashed string to check if the input is valid. It's usually based on UNIX-timestamp so we can fact-check it and limit the usablility time. With this, we can be more sure that no non-direct requests are permited access (preventing [CSRF Attacks](https://portswigger.net/web-security/csrf)).
 
-Below are simple functions that generates a NONCE that is valid for 12 hours (I think so, I don't remember :P). by `action` I mean the act that is about to be done, like `dologin` or `dosignup`. and by `user` I mean the the user id. (if the user is logged in tho. if not, I pass `0`). So now we have a NONCE that is based on timestamp, the action, and the user. Other factors can also be added if necessary.
+Below are simple functions to generate a NONCE that is valid for 12 hours (I think so, I don't remember :P). By `action` I mean the act that is about to be done, like `dologin` or `dosignup`. and by `user` I mean the the user id. (if the user is logged in tho. if not, I pass `0`). So now we have a NONCE that is based on timestamp, the action, and the user. Other factors can also be added if necessary.
 ```php
 // A salt for the NONCE. I keep this in a `secret.php` file. Make it long :)
 define("SECRET_NONCE_SALT", "BlaBlaBlaBlaBlaBla");
 
-function CreateNonce($action = "" , $user = "") { return substr(NonceGenerateHash($action . $user), -12, 10); }
-function IsNonceValid($nonce = "", $action = "", $user = "") { return (substr(NonceGenerateHash($action . $user), -12, 10) == $nonce); }
-function NonceGenerateHash($action = "", $user = "") { return md5(  ceil(time() / (86400 / 2))  . $action . $user . SECRET_NONCE_SALT); }
+function CreateNonce($action = "", $user = "") { return substr(md5(  ceil(time() / (86400 / 2))  . $action . $user . SECRET_NONCE_SALT), -12, 10); }
+function IsNonceValid($nonce = "", $action = "", $user = "") { return (CreateNonce($action, $user) == $nonce); }
 ```
 
 
@@ -79,10 +71,10 @@ if (isset($_SERVER["HTTP_REFERER"]) && $_SERVER["HTTP_REFERER"] == "http://" . S
 ```
 
 ### Always Sanitize + Get Vaccinated :)
-Always sanitize the user input. Again, "Never trust the user". We'll have an overview of some methods. In most cases you have to sanitize inputs for specifically tho.
+Always sanitize the user input. Again, "Never trust the user". We'll have an overview of some methods. In most cases you have to sanitize inputs more specifically.
 
 
-##### Trimming Whitespaces
+#### Trimming Whitespaces
 [`trim()`](https://www.php.net/manual/en/function.trim.php) clears whitespaces from before and after the string.
 ```php
 $a = "     Hello    World   !    ";
@@ -91,8 +83,8 @@ $b = trim($temp);
 ```
 
 
-##### Length Limiting
-Limit the maximum and minimum length of user inputs. You probably want to keep an eye on your database as well. Based on the context, either show an error, or trim it using [`substr()`](https://www.php.net/manual/en/function.substr.php) on limit exceed [and tell the user]. Don't set it too limited. like allow passwords 8-64, and names 3-50, and emails 10-128. [RegEx](https://www.w3schools.com/php/php_regex.asp) can be used for this purpose as well (it may be better actually).
+#### Length Limiting
+Limit the maximum and minimum length of user inputs. You probably want to keep an eye on your database as well. Based on the context, either show an error, or trim it using [`substr()`](https://www.php.net/manual/en/function.substr.php) on limit exceed [and tell the user]. Don't set it too limited. like allow passwords 8-64, names 3-50, and emails 10-128. [RegEx](https://www.w3schools.com/php/php_regex.asp) can be used for this purpose as well (it may be better actually).
 ```php
 if (strlen($_POST["password"]) >= 8 && strlen($_POST["password"]) <= 64) {
     // Do the thing..
@@ -100,7 +92,7 @@ if (strlen($_POST["password"]) >= 8 && strlen($_POST["password"]) <= 64) {
 ```
 
 
-##### Type & Validity Checking
+#### Type & Validity Checking
 Let's say our site has different pages specified by the `GET` of `?page=15`. Of course in this case we don't want anything like `?page=John`! So we always check if the input is valid. In most cases we use [RegEx](https://www.w3schools.com/php/php_regex.asp). It's brilliant for validating strings.
 ```php
 // A RegEx example for numbers-only
@@ -130,20 +122,29 @@ For adding to the DB, [`filter_var()`](https://www.php.net/manual/en/function.fi
 When passing content via `GET` you can also make use of [`urlencode()`](https://www.php.net/manual/en/function.urlencode.php) too.
 
 
-## Session Stuff
-We can use [`session_regenerate_id()`]() often so if the session was somehow hijacked, it won't last long.
-
-
 ## SQL Injection
 The deadliest attack of all. Your DB may even end up deleted! (Always have backup). [A good article on PDO preventing SQL Injection](https://websitebeaver.com/php-pdo-prepared-statements-to-prevent-sql-injection)
 
 
+## CSRF Attack 
+Read [this brilliant article](https://portswigger.net/web-security/csrf)
+```html
+<meta name="referrer" content="never">
+```
+```html
+<a target="_blank" rel="noopener noreferrer" href="http://example.com/">
+```
+
+## Session Stuff
+We can use [`session_regenerate_id()`]() often so if the session was somehow hijacked, it won't last long.
+
+
 ## HTTPS
-Having [SSL]() is always a good idea. It encrypts the exchanging values so no man-in-the-middle can use/change the data.
+Having [SSL](https://www.sitepoint.com/ssl-which-certificate/) is always a good idea. It encrypts the exchanging values so no [`man-in-the-middle`](https://medium.com/@munteanu210/ssl-certificates-vs-man-in-the-middle-attacks-3fb7846fa5db) can use/change the data.
 
 
 ## Backup
-Having backup is always a good idea. Backup your data very often. Like DBs, code files, repos, project files, family photos, the first Hello World you've written that you were very very happy about it :), and every single important thing in your life!
+Having backup is always a good idea. Backup your data very often. Like DBs, code files, repos, project files, family photos, the first Hello World you've written that you were very very happy about it :), and each and every single important thing in your life!
 
 
 
